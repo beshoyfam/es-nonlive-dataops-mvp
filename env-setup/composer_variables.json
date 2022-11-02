@@ -1,0 +1,17 @@
+{
+  "gcp_project": "",
+  "gcp_region": "",
+  "gcp_zone": "",
+  "dataflow_jar_location_test": "",
+  "dataflow_jar_file_test": "to_be_overriden",
+  "gcs_input_bucket_test": "",
+  "gcs_ref_bucket_test": "",
+  "gcs_output_bucket_test": "",
+  "dataflow_staging_bucket_test": "",
+  "pubsub_topic": "",
+  "dataflow_jar_location_prod": "",
+  "dataflow_jar_file_prod": "to_be_overriden",
+  "gcs_input_bucket_prod": "",
+  "gcs_output_bucket_prod": "",
+  "dataflow_staging_bucket_prod": ""
+}

@@ -1,0 +1,71 @@
+steps:
+   - id: vault-secrets
+     name: europe-west1-docker.pkg.dev/vf-tst-nwp-live/nwp/vault:5
+     entrypoint: /bin/sh
+     args:
+      - -c
+      - |
+        echo "test" >> /workspace/env.sh
+        source /workspace/env.sh
+        export VAULT_ADDR=https://beta-gvp.vault.neuron.bdp.vodafone.com
+        vault login -no-print -method=gcp role="vf-tst-nwp-live-gce" service_account="cloudbuild@$PROJECT_ID.iam.gserviceaccount.com"
+        echo "export name=$(vault kv get -field=name vf-tst-nwp-live/data/test) >> /workspace/env.sh
+   - id: pull-source
+     name: gcr.io/cloud-builders/gcloud
+     waitFor: ["vault-secrets"]
+     entrypoint: /bin/bash
+     args:
+      - -c
+      - |
+        source /workspace/env.sh
+        echo $name
+        echo $$name
+#  # buid Image with Tag
+#  - name: 'gcr.io/cloud-builders/docker'
+#    dir: './server'
+#    args: [ 'build', '-t', 'europe-west1-docker.pkg.dev/$PROJECT_ID/nwp/ccs-backend:${TAG_NAME}', '.' ]
+#  # Push Image to Artifact Registry of the project
+#  - name: 'gcr.io/cloud-builders/docker'
+#    args: ['push', 'europe-west1-docker.pkg.dev/$PROJECT_ID/nwp/ccs-backend:${TAG_NAME}']
+
+#  # ====Deploy
+#  - id: tunnel-script
+#    name:  europe-west1-docker.pkg.dev/vf-tst-nwp-live/nwp/k8s-deploy:1.0    #Thanks to Mostafa Mowaad
+#    entrypoint: /bin/bash
+#    args:
+#     - -c
+#     - | 
+#       echo -e "##### Started Tunnel To Bastion-Host ######"
+#       chmod +x ./server/tunnel.sh && ./server/tunnel.sh --project_id $PROJECT_ID --cluster_name $_CUSTOM_CLUSTER
+#       export KUBECONFIG=/builder/home/.kube/vf-tst-nwp-live_trusted-zone-gke-cluster.yaml
+#       echo -e "##### Started Deploying To Bastion-Host ######"
+#       kubectl patch deployment backend-app -n ccs -p '{"spec":{"template":{"spec":{"containers":[{"name":"vf-back","image":"europe-west1-docker.pkg.dev/$PROJECT_ID/nwp/ccs-backend:${TAG_NAME}"}]}}}}'
+#       echo -e "##### New Image is now Deployed! ######"
+#       kubectl logs vf-back
+#       ./server/tunnel.sh --project_id $PROJECT_ID --cluster_name $_CUSTOM_CLUSTER --close
+  
+#  - id: configure-kubectl
+#    name: gcr.io/cloud-builders/kubectl
+#    args:
+#      - cluster-info
+#    env:
+#      - CLOUDSDK_COMPUTE_REGION=$_CUSTOM_REGION
+#      - CLOUDSDK_CONTAINER_CLUSTER=$_CUSTOM_CLUSTER
+#      - KUBECONFIG=/workspace/.kube/config
+#  - id: kubectl-apply
+#    name: gcr.io/cloud-builders/kubectl
+#    args: ['set', 'image', 'deployment/backend-app','-n=ccs', 'vf-back=europe-west1-docker.pkg.dev/$PROJECT_ID/nwp/ccs-backend:1.20']
+#    env:
+#      - CLOUDSDK_COMPUTE_REGION=$_CUSTOM_REGION
+#      - CLOUDSDK_CONTAINER_CLUSTER=$_CUSTOM_CLUSTER
+#      - KUBECONFIG=/workspace/.kube/config
+
+timeout: 1200s
+options:
+  workerPool:
+    'projects/vf-tst-nwp-live/locations/europe-west1/workerPools/gke-deploy-private-pool'
+logsBucket: "gs://$PROJECT_ID-logging"
+timeout: 4800s
+# substitutions:
+#   _CUSTOM_REGION: europe-west1-b
+#   _CUSTOM_CLUSTER: trusted-zone-gke-cluster
