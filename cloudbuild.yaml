@@ -46,42 +46,42 @@ steps:
 
 
 
-# - name: 'gcr.io/cloud-builders/gcloud'
-#   script: |
-#     gcloud compute ssh bastion-1 --zone europe-west1-b --project vf-dev-nwp-nonlive --command="gcloud composer environments run composer-dev --location=europe-west1 dags trigger -- airflow_monitoring --run_id=foo"
-#   id: 'bastion-script-trigger-composer'
+- name: 'gcr.io/cloud-builders/gcloud'
+  script: |
+    gcloud compute ssh bastion-1 --zone europe-west1-b --project vf-es-nwp-nonlive --command="gcloud composer environments run composer-dev --location=europe-west1 dags trigger -- airflow_monitoring --run_id=123"
+  id: 'bastion-script-trigger-composer'
 
-- name: gcr.io/cloud-builders/gcloud
-  args: ['composer', 'environments', 'run', '${_COMPOSER_ENV_NAME}', '--location', '${_COMPOSER_REGION}', 'dags', 'trigger', '--', 'airflow_monitoring', '--run-id=11']
-  id: 'trigger-pipeline-execution2'
+# - name: gcr.io/cloud-builders/gcloud
+#   args: ['composer', 'environments', 'run', '${_COMPOSER_ENV_NAME}', '--location', '${_COMPOSER_REGION}', 'dags', 'trigger', '--', 'airflow_monitoring', '--run-id=11']
+#   id: 'trigger-pipeline-execution2'
 
 
-- name: gcr.io/cloud-builders/gcloud
-  args: ['composer', 'environments', 'run', '${_COMPOSER_ENV_NAME}', '--location', '${_COMPOSER_REGION}', 'variables', 'set', '--', 'dataflow_jar_file_test', 'dataflow_deployment_$BUILD_ID.jar']
-  id: 'set-composer-jar-ref'
+# - name: gcr.io/cloud-builders/gcloud
+#   args: ['composer', 'environments', 'run', '${_COMPOSER_ENV_NAME}', '--location', '${_COMPOSER_REGION}', 'variables', 'set', '--', 'dataflow_jar_file_test', 'dataflow_deployment_$BUILD_ID.jar']
+#   id: 'set-composer-jar-ref'
 
-- name: gcr.io/cloud-builders/gsutil
-  args: ['cp', 'compare_xcom_maps.py', '${_COMPOSER_DAG_BUCKET}']
-  dir: '$REPO_NAME/workflow-dag'
-  id: 'deploy-custom-operator'
+# - name: gcr.io/cloud-builders/gsutil
+#   args: ['cp', 'compare_xcom_maps.py', '${_COMPOSER_DAG_BUCKET}']
+#   dir: '$REPO_NAME/workflow-dag'
+#   id: 'deploy-custom-operator'
 
-- name: gcr.io/cloud-builders/gsutil
-  args: ['cp', 'data-pipeline-test.py', '${_COMPOSER_DAG_BUCKET}']
-  dir: '$REPO_NAME/workflow-dag'
-  id: 'deploy-processing-pipeline'
+# - name: gcr.io/cloud-builders/gsutil
+#   args: ['cp', 'data-pipeline-test.py', '${_COMPOSER_DAG_BUCKET}']
+#   dir: '$REPO_NAME/workflow-dag'
+#   id: 'deploy-processing-pipeline'
 
-- name: gcr.io/cloud-builders/gcloud
-  entrypoint: 'bash'
-  args: ['wait_for_dag_deployed.sh', '${_COMPOSER_ENV_NAME}', '${_COMPOSER_REGION}', '${_COMPOSER_DAG_NAME_TEST}', '6', '20']
-  dir: '$REPO_NAME/build-pipeline'
-  id: 'wait-for-dag-deployed-on-composer'
+# - name: gcr.io/cloud-builders/gcloud
+#   entrypoint: 'bash'
+#   args: ['wait_for_dag_deployed.sh', '${_COMPOSER_ENV_NAME}', '${_COMPOSER_REGION}', '${_COMPOSER_DAG_NAME_TEST}', '6', '20']
+#   dir: '$REPO_NAME/build-pipeline'
+#   id: 'wait-for-dag-deployed-on-composer'
   
-- name: gcr.io/cloud-builders/gcloud
-  args: ['composer', 'environments', 'run', '${_COMPOSER_ENV_NAME}', '--location', '${_COMPOSER_REGION}', 'dags', 'trigger', '--', '${_COMPOSER_DAG_NAME_TEST}', '--run-id=$BUILD_ID']
-  id: 'trigger-pipeline-execution'
+# - name: gcr.io/cloud-builders/gcloud
+#   args: ['composer', 'environments', 'run', '${_COMPOSER_ENV_NAME}', '--location', '${_COMPOSER_REGION}', 'dags', 'trigger', '--', '${_COMPOSER_DAG_NAME_TEST}', '--run-id=$BUILD_ID']
+#   id: 'trigger-pipeline-execution'
 
 
 options:
   logging: CLOUD_LOGGING_ONLY
-  pool:
-    name: 'projects/vf-dev-nwp-nonlive/locations/europe-west1/workerPools/test'  
+  # pool:
+  #   name: 'projects/vf-dev-nwp-nonlive/locations/europe-west1/workerPools/test'  
